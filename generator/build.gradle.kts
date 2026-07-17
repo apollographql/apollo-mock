@@ -20,6 +20,7 @@ kotlin {
     jvmMain.dependencies {
       implementation(libs.apollo.ast)
       implementation(libs.langchain4j.anthropic)
+      implementation(libs.langchain4j.ollama)
       implementation(libs.kotlinx.serialization.json)
     }
   }

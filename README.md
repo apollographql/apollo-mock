@@ -3,7 +3,8 @@
 A fake GraphQL server toolkit built as a Kotlin multiplatform project (JVM target for now):
 
 - **`generator`**: given a GraphQL schema (SDL), generates JSON files containing fake entities. The
-  fake data is produced by an LLM through [langchain4j](https://docs.langchain4j.dev/) (Anthropic by default).
+  fake data is produced by an LLM through [langchain4j](https://docs.langchain4j.dev/) (Anthropic by
+  default, Ollama for local generation).
 - **`server`**: given the JSON files produced by the generator, serves a working GraphQL server using
   [Ktor](https://ktor.io/) and [apollo-kotlin-execution](https://github.com/apollographql/apollo-kotlin-execution).
 
@@ -15,6 +16,15 @@ A fake GraphQL server toolkit built as a Kotlin multiplatform project (JVM targe
 export ANTHROPIC_API_KEY=...
 ./gradlew :generator:runJvm --args="--schema sample/schema.graphqls --output data --count 8"
 ```
+
+Or fully local with [Ollama](https://ollama.com/) (no API key needed):
+
+```shell
+ollama pull llama3.2
+./gradlew :generator:runJvm --args="--schema sample/schema.graphqls --output data --provider ollama"
+```
+
+Use `--model` to pick another model and `--base-url` for a non-default Ollama endpoint.
 
 This writes one `<TypeName>.json` file per object type in the `data/` directory. Scalar and enum
 fields are filled by the LLM; fields pointing to other types are linked with `{__typename, id}`

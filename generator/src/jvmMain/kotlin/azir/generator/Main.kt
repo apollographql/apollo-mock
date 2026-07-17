@@ -22,29 +22,35 @@ import kotlinx.serialization.json.jsonArray
 private const val USAGE = """
 Generates fake entities for a GraphQL schema using an LLM (through langchain4j).
 
-Usage: generator --schema <schema.graphqls> --output <directory> [--count <n>] [--model <model-name>]
+Usage: generator --schema <schema.graphqls> --output <directory> [--provider <provider>] [--count <n>] [--model <model-name>] [--base-url <url>]
 
-  --schema  path to the GraphQL schema file (SDL)
-  --output  directory where the JSON files are written (one file per type)
-  --count   number of entities to generate per type (default: 8)
-  --model   Claude model name (default: claude-opus-4-8)
+  --schema    path to the GraphQL schema file (SDL)
+  --output    directory where the JSON files are written (one file per type)
+  --provider  LLM provider: 'anthropic' or 'ollama' (default: anthropic)
+  --count     number of entities to generate per type (default: 8)
+  --model     model name (default: claude-opus-4-8 for anthropic, llama3.2 for ollama)
+  --base-url  Ollama base url (default: http://localhost:11434, ollama only)
 
-The ANTHROPIC_API_KEY environment variable must be set.
+The ANTHROPIC_API_KEY environment variable must be set when using the anthropic provider.
 """
 
 fun main(args: Array<String>) {
   var schemaPath: String? = null
   var outputPath: String? = null
+  var provider = "anthropic"
   var count = 8
-  var modelName = "claude-opus-4-8"
+  var modelName: String? = null
+  var baseUrl: String? = null
 
   var i = 0
   while (i < args.size) {
     when (args[i]) {
       "--schema" -> schemaPath = args[++i]
       "--output" -> outputPath = args[++i]
+      "--provider" -> provider = args[++i]
       "--count" -> count = args[++i].toInt()
       "--model" -> modelName = args[++i]
+      "--base-url" -> baseUrl = args[++i]
       else -> {
         println(USAGE)
         exitProcess(1)
@@ -62,7 +68,7 @@ fun main(args: Array<String>) {
   val outputDir = File(outputPath)
   outputDir.mkdirs()
 
-  val generator = Generator(schema, modelName)
+  val generator = Generator(schema, chatModel(provider, modelName, baseUrl))
   val entities = generator.generateEntities(count)
   linkEntities(schema, entities)
 
@@ -80,7 +86,6 @@ fun main(args: Array<String>) {
  * resolves those references against the full entities at execution time.
  */
 private fun linkEntities(schema: Schema, entities: Map<String, MutableList<JsonObject>>) {
-  var roundRobin = 0
   entities.forEach { (typeName, list) ->
     val typeDefinition = schema.typeDefinitions[typeName] as GQLObjectTypeDefinition
     val compositeFields = typeDefinition.fields.mapNotNull { field ->
@@ -92,13 +97,15 @@ private fun linkEntities(schema: Schema, entities: Map<String, MutableList<JsonO
     }
 
     list.forEachIndexed { index, entity ->
-      val linkedFields = compositeFields.associate { (fieldName, isList, candidates) ->
-        val references = List(if (isList) 3 else 1) {
-          val target = candidates[roundRobin % candidates.size]
+      val linkedFields = compositeFields.withIndex().associate { (fieldOrdinal, field) ->
+        val (fieldName, isList, candidates) = field
+        val references = List(if (isList) 3 else 1) { position ->
+          // Deterministic but different per entity and per field so that
+          // entities don't all point to the same targets
+          val offset = index + fieldOrdinal + position
+          val target = candidates[offset % candidates.size]
           val targetEntities = entities.getValue(target)
-          val reference = reference(target, targetEntities[roundRobin % targetEntities.size])
-          roundRobin++
-          reference
+          reference(target, targetEntities[offset % targetEntities.size])
         }
         fieldName to if (isList) JsonArray(references.distinct()) else references.first()
       }
@@ -117,13 +124,30 @@ private fun reference(typeName: String, entity: JsonObject): JsonObject {
   }
 }
 
-internal class Generator(private val schema: Schema, modelName: String) {
-  private val chatModel = dev.langchain4j.model.anthropic.AnthropicChatModel.builder()
-    .apiKey(System.getenv("ANTHROPIC_API_KEY") ?: error("Set the ANTHROPIC_API_KEY environment variable"))
-    .modelName(modelName)
-    .maxTokens(16000)
-    .build()
+internal fun chatModel(provider: String, modelName: String?, baseUrl: String?): dev.langchain4j.model.chat.ChatModel {
+  return when (provider) {
+    "anthropic" -> {
+      check(baseUrl == null) { "--base-url is only supported with the ollama provider" }
+      dev.langchain4j.model.anthropic.AnthropicChatModel.builder()
+        .apiKey(System.getenv("ANTHROPIC_API_KEY") ?: error("Set the ANTHROPIC_API_KEY environment variable"))
+        .modelName(modelName ?: "claude-opus-4-8")
+        .maxTokens(16000)
+        .build()
+    }
 
+    "ollama" -> {
+      dev.langchain4j.model.ollama.OllamaChatModel.builder()
+        .baseUrl(baseUrl ?: "http://localhost:11434")
+        .modelName(modelName ?: "llama3.2")
+        .numPredict(16000)
+        .build()
+    }
+
+    else -> error("Unknown provider: '$provider'. Supported providers: anthropic, ollama")
+  }
+}
+
+internal class Generator(private val schema: Schema, private val chatModel: dev.langchain4j.model.chat.ChatModel) {
   private val rootTypeNames = listOf("query", "mutation", "subscription")
     .mapNotNull { schema.rootTypeNameOrNullFor(it) }
     .toSet()
@@ -181,13 +205,15 @@ internal class Generator(private val schema: Schema, modelName: String) {
   }
 }
 
+/**
+ * Extracts the JSON array from the model response, tolerating markdown fences and
+ * other text around it (thinking preamble, commentary, etc.).
+ */
 private fun String.extractJsonArray(): JsonArray {
-  val cleaned = trim()
-    .removePrefix("```json")
-    .removePrefix("```")
-    .removeSuffix("```")
-    .trim()
-  return Json.parseToJsonElement(cleaned).jsonArray
+  val start = indexOf('[')
+  val end = lastIndexOf(']')
+  check(start != -1 && end > start) { "No JSON array found in model response:\n$this" }
+  return Json.parseToJsonElement(substring(start, end + 1)).jsonArray
 }
 
 private fun com.apollographql.apollo.ast.GQLTypeDefinition?.isLeaf(): Boolean {
