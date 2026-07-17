@@ -1,0 +1,20 @@
+[versions]
+kotlin = "2.4.10"
+ktor = "3.5.1"
+langchain4j = "1.18.0"
+apollo = "5.0.1"
+apollo-execution = "0.1.2"
+kotlinx-serialization = "1.11.0"
+logback = "1.5.18"
+
+[libraries]
+apollo-ast = { module = "com.apollographql.apollo:apollo-ast", version.ref = "apollo" }
+apollo-execution-runtime = { module = "com.apollographql.execution:apollo-execution-runtime", version.ref = "apollo-execution" }
+apollo-execution-ktor = { module = "com.apollographql.execution:apollo-execution-ktor", version.ref = "apollo-execution" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+langchain4j-anthropic = { module = "dev.langchain4j:langchain4j-anthropic", version.ref = "langchain4j" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
