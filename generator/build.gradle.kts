@@ -11,7 +11,7 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     binaries {
       executable {
-        mainClass.set("azir.generator.MainKt")
+        mainClass.set("apollo.mock.generator.MainKt")
       }
     }
   }

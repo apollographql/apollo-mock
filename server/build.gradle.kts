@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
-  alias(libs.plugins.kotlin.multiplatform)
+  id("org.jetbrains.kotlin.multiplatform")
 }
 
 kotlin {
@@ -11,7 +11,7 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     binaries {
       executable {
-        mainClass.set("azir.server.MainKt")
+        mainClass.set("apollo.mock.server.MainKt")
       }
     }
   }

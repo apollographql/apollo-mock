@@ -1,4 +1,4 @@
-package azir.server
+package apollo.mock.server
 
 import com.apollographql.apollo.ast.toGQLDocument
 import com.apollographql.apollo.execution.ExecutableSchema

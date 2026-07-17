@@ -1,4 +1,4 @@
-package azir.server
+package apollo.mock.server
 
 import java.io.File
 import kotlinx.serialization.json.Json

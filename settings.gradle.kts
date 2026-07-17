@@ -1,21 +1,10 @@
 pluginManagement {
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
+  listOf(repositories, dependencyResolutionManagement.repositories).forEach  {
+    it.mavenCentral()
   }
 }
 
-plugins {
-  id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
-
-dependencyResolutionManagement {
-  repositories {
-    mavenCentral()
-  }
-}
-
-rootProject.name = "azir"
+rootProject.name = "apollo-mock"
 
 include(":generator")
 include(":server")

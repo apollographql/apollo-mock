@@ -1,16 +1,36 @@
-package azir.generator
+package apollo.mock.generator
 
 import com.apollographql.apollo.ast.GQLEnumTypeDefinition
+import com.apollographql.apollo.ast.GQLFieldDefinition
+import com.apollographql.apollo.ast.GQLInterfaceTypeDefinition
 import com.apollographql.apollo.ast.GQLListType
 import com.apollographql.apollo.ast.GQLNamedType
 import com.apollographql.apollo.ast.GQLNonNullType
 import com.apollographql.apollo.ast.GQLObjectTypeDefinition
 import com.apollographql.apollo.ast.GQLScalarTypeDefinition
 import com.apollographql.apollo.ast.GQLType
+import com.apollographql.apollo.ast.GQLTypeDefinition
+import com.apollographql.apollo.ast.GQLUnionTypeDefinition
 import com.apollographql.apollo.ast.Schema
 import com.apollographql.apollo.ast.pretty
 import com.apollographql.apollo.ast.toGQLDocument
 import com.apollographql.apollo.ast.toSchema
+import dev.langchain4j.data.message.UserMessage
+import dev.langchain4j.model.anthropic.AnthropicChatModel
+import dev.langchain4j.model.chat.ChatModel
+import dev.langchain4j.model.chat.request.ChatRequest
+import dev.langchain4j.model.chat.request.ResponseFormat
+import dev.langchain4j.model.chat.request.ResponseFormatType
+import dev.langchain4j.model.chat.request.json.JsonArraySchema
+import dev.langchain4j.model.chat.request.json.JsonBooleanSchema
+import dev.langchain4j.model.chat.request.json.JsonEnumSchema
+import dev.langchain4j.model.chat.request.json.JsonIntegerSchema
+import dev.langchain4j.model.chat.request.json.JsonNumberSchema
+import dev.langchain4j.model.chat.request.json.JsonObjectSchema
+import dev.langchain4j.model.chat.request.json.JsonSchema
+import dev.langchain4j.model.chat.request.json.JsonSchemaElement
+import dev.langchain4j.model.chat.request.json.JsonStringSchema
+import dev.langchain4j.model.ollama.OllamaChatModel
 import java.io.File
 import kotlin.system.exitProcess
 import kotlinx.serialization.json.Json
@@ -124,11 +144,11 @@ private fun reference(typeName: String, entity: JsonObject): JsonObject {
   }
 }
 
-internal fun chatModel(provider: String, modelName: String?, baseUrl: String?): dev.langchain4j.model.chat.ChatModel {
+internal fun chatModel(provider: String, modelName: String?, baseUrl: String?): ChatModel {
   return when (provider) {
     "anthropic" -> {
       check(baseUrl == null) { "--base-url is only supported with the ollama provider" }
-      dev.langchain4j.model.anthropic.AnthropicChatModel.builder()
+      AnthropicChatModel.builder()
         .apiKey(System.getenv("ANTHROPIC_API_KEY") ?: error("Set the ANTHROPIC_API_KEY environment variable"))
         .modelName(modelName ?: "claude-opus-4-8")
         .maxTokens(16000)
@@ -136,7 +156,7 @@ internal fun chatModel(provider: String, modelName: String?, baseUrl: String?): 
     }
 
     "ollama" -> {
-      dev.langchain4j.model.ollama.OllamaChatModel.builder()
+      OllamaChatModel.builder()
         .baseUrl(baseUrl ?: "http://localhost:11434")
         .modelName(modelName ?: "llama3.2")
         .numPredict(16000)
@@ -147,7 +167,7 @@ internal fun chatModel(provider: String, modelName: String?, baseUrl: String?): 
   }
 }
 
-internal class Generator(private val schema: Schema, private val chatModel: dev.langchain4j.model.chat.ChatModel) {
+internal class Generator(private val schema: Schema, private val chatModel: ChatModel) {
   private val rootTypeNames = listOf("query", "mutation", "subscription")
     .mapNotNull { schema.rootTypeNameOrNullFor(it) }
     .toSet()
@@ -169,30 +189,28 @@ internal class Generator(private val schema: Schema, private val chatModel: dev.
 
   private fun generate(type: GQLObjectTypeDefinition, count: Int): List<JsonObject> {
     val leafFields = type.fields.filter { schema.typeDefinitions[it.type.rawTypeName()].isLeaf() }
-    val fieldsSdl = leafFields.joinToString("\n") { "  ${it.name}: ${it.type.pretty()}" }
-    val enums = leafFields.mapNotNull { schema.typeDefinitions[it.type.rawTypeName()] as? GQLEnumTypeDefinition }
-      .distinctBy { it.name }
-      .joinToString("\n") { enum -> "- ${enum.name}: one of ${enum.enumValues.joinToString(", ") { it.name }}" }
 
     val prompt = buildString {
       appendLine("You generate fake test data for a GraphQL API.")
       appendLine("Generate exactly $count diverse and realistic entities for this GraphQL type:")
       appendLine()
       appendLine("type ${type.name} {")
-      appendLine(fieldsSdl)
+      appendLine(leafFields.joinToString("\n") { "  ${it.name}: ${it.type.pretty()}" })
       appendLine("}")
-      if (enums.isNotBlank()) {
-        appendLine()
-        appendLine("Enum fields must use one of their allowed values:")
-        appendLine(enums)
-      }
-      appendLine()
-      appendLine("Respond with a JSON array of $count objects and nothing else: no markdown fences, no commentary.")
-      appendLine("Each object must contain exactly the fields listed above, with values matching their GraphQL types.")
     }
 
-    val response = chatModel.chat(prompt)
-    val objects = response.extractJsonArray().map { it as JsonObject }
+    val request = ChatRequest.builder()
+      .messages(UserMessage.from(prompt))
+      .responseFormat(
+          ResponseFormat.builder()
+            .type(ResponseFormatType.JSON)
+            .jsonSchema(jsonSchema(type.name, leafFields))
+            .build()
+      )
+      .build()
+
+    val response = chatModel.chat(request).aiMessage().text()
+    val objects = response.parseEntities().map { it as JsonObject }
 
     val hasId = type.fields.any { it.name == "id" }
     return objects.mapIndexed { index, obj ->
@@ -203,20 +221,60 @@ internal class Generator(private val schema: Schema, private val chatModel: dev.
       }
     }
   }
+
+  /**
+   * Builds a JSON schema used as structured output so that the model can only produce
+   * entities matching the GraphQL type. Providers don't always accept an array as the
+   * root element so the entities are wrapped in an object.
+   */
+  private fun jsonSchema(typeName: String, fields: List<GQLFieldDefinition>): JsonSchema {
+    val entitySchema = JsonObjectSchema.builder()
+      .apply { fields.forEach { addProperty(it.name, it.type.toJsonSchemaElement()) } }
+      .required(fields.map { it.name })
+      .build()
+
+    return JsonSchema.builder()
+      .name("${typeName}Entities")
+      .rootElement(
+          JsonObjectSchema.builder()
+            .addProperty("entities", JsonArraySchema.builder().items(entitySchema).build())
+            .required("entities")
+            .build()
+      )
+      .build()
+  }
+
+  private fun GQLType.toJsonSchemaElement(): JsonSchemaElement {
+    return when (this) {
+      is GQLNonNullType -> type.toJsonSchemaElement()
+      is GQLListType -> JsonArraySchema.builder().items(type.toJsonSchemaElement()).build()
+      is GQLNamedType -> when (name) {
+        "Int" -> JsonIntegerSchema.builder().build()
+        "Float" -> JsonNumberSchema.builder().build()
+        "Boolean" -> JsonBooleanSchema.builder().build()
+        else -> {
+          val definition = schema.typeDefinitions[name]
+          if (definition is GQLEnumTypeDefinition) {
+            JsonEnumSchema.builder().enumValues(definition.enumValues.map { it.name }).build()
+          } else {
+            // String, ID and custom scalars
+            JsonStringSchema.builder().build()
+          }
+        }
+      }
+    }
+  }
 }
 
-/**
- * Extracts the JSON array from the model response, tolerating markdown fences and
- * other text around it (thinking preamble, commentary, etc.).
- */
-private fun String.extractJsonArray(): JsonArray {
-  val start = indexOf('[')
-  val end = lastIndexOf(']')
-  check(start != -1 && end > start) { "No JSON array found in model response:\n$this" }
-  return Json.parseToJsonElement(substring(start, end + 1)).jsonArray
+private fun String.parseEntities(): JsonArray {
+  return when (val element = Json.parseToJsonElement(trim())) {
+    is JsonArray -> element
+    is JsonObject -> element["entities"]?.jsonArray ?: error("No 'entities' array in model response:\n$this")
+    else -> error("Unexpected model response:\n$this")
+  }
 }
 
-private fun com.apollographql.apollo.ast.GQLTypeDefinition?.isLeaf(): Boolean {
+private fun GQLTypeDefinition?.isLeaf(): Boolean {
   return this is GQLScalarTypeDefinition || this is GQLEnumTypeDefinition
 }
 
@@ -235,8 +293,8 @@ internal fun GQLType.isList(): Boolean = when (this) {
 internal fun Schema.concreteTypes(typeName: String): List<String> {
   return when (typeDefinitions[typeName]) {
     is GQLObjectTypeDefinition -> listOf(typeName)
-    is com.apollographql.apollo.ast.GQLInterfaceTypeDefinition,
-    is com.apollographql.apollo.ast.GQLUnionTypeDefinition,
+    is GQLInterfaceTypeDefinition,
+    is GQLUnionTypeDefinition,
       -> possibleTypes(typeName).toList()
 
     else -> emptyList()

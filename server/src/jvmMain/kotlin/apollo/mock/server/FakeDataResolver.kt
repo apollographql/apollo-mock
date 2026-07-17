@@ -1,4 +1,4 @@
-package azir.server
+package apollo.mock.server
 
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.ast.GQLInterfaceTypeDefinition
@@ -11,6 +11,7 @@ import com.apollographql.apollo.ast.GQLUnionTypeDefinition
 import com.apollographql.apollo.ast.Schema
 import com.apollographql.apollo.execution.ResolveInfo
 import com.apollographql.apollo.execution.Resolver
+import kotlin.collections.get
 
 /**
  * A generic [Resolver] backed by an [EntityStore]:
