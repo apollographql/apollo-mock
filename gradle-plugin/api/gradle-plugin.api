@@ -1,0 +1,21 @@
+public abstract class apollo/mock/gradle/ApolloMockExtension {
+	public fun <init> (Lorg/gradle/api/Project;)V
+	public final fun service (Ljava/lang/String;Lorg/gradle/api/Action;)V
+}
+
+public abstract class apollo/mock/gradle/ApolloMockExtensionPlugin : org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/Project;)V
+}
+
+public final class apollo/mock/gradle/ApolloMockService {
+	public fun <init> (Lorg/gradle/api/Project;Ljava/lang/String;)V
+	public final fun getApiKey ()Lorg/gradle/api/provider/Property;
+	public final fun getBaseUrl ()Lorg/gradle/api/provider/Property;
+	public final fun getListSize ()Lorg/gradle/api/provider/Property;
+	public final fun getModel ()Lorg/gradle/api/provider/Property;
+	public final fun getProvider ()Lorg/gradle/api/provider/Property;
+	public final fun srcDir (Ljava/lang/String;)V
+}
+

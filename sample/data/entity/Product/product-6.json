@@ -1,0 +1,26 @@
+{
+    "name": "Ultralight Camping Tent (2-Person)",
+    "description": "Waterproof, easy setup tent weighing only 1.8kg. Ideal for backpacking and festival use.",
+    "price": 159.95,
+    "currency": "USD",
+    "inStock": true,
+    "id": "product-6",
+    "category": {
+        "__typename": "Category",
+        "id": "category-6"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-7"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-8"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-1"
+        }
+    ]
+}

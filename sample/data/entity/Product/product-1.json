@@ -1,0 +1,26 @@
+{
+    "name": "Wireless Noise-Canceling Headphones",
+    "description": "Premium over-ear headphones with 30-hour battery life and adaptive noise cancellation.",
+    "price": 249.99,
+    "currency": "USD",
+    "inStock": true,
+    "id": "product-1",
+    "category": {
+        "__typename": "Category",
+        "id": "category-1"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-2"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-3"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-4"
+        }
+    ]
+}

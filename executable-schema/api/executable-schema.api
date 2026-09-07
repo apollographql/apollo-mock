@@ -1,0 +1,16 @@
+public final class apollo/mock/resolver/EntityStore {
+	public static final field Companion Lapollo/mock/resolver/EntityStore$Companion;
+	public fun <init> (Ljava/util/Map;)V
+	public final fun all (Ljava/util/Collection;)Ljava/util/List;
+	public final fun byId (Ljava/util/Collection;Ljava/lang/Object;)Ljava/util/Map;
+	public final fun contains (Ljava/util/Collection;)Z
+}
+
+public final class apollo/mock/resolver/EntityStore$Companion {
+	public final fun load (Lkotlinx/io/files/Path;)Lapollo/mock/resolver/EntityStore;
+}
+
+public final class apollo/mock/resolver/ExecutableSchemaKt {
+	public static final fun executableSchema (Lcom/apollographql/apollo/ast/GQLDocument;Lapollo/mock/resolver/EntityStore;)Lcom/apollographql/apollo/execution/ExecutableSchema;
+}
+

@@ -1,0 +1,18 @@
+query GetProducts {
+  products {
+    name
+    price @mock(value: 9.99)
+    inStock @mock(value: true)
+    category @mock(hint: "a category for kitchen appliances") {
+      name
+    }
+  }
+}
+
+query GetOutOfStockProduct @mock(hint: "a single out-of-stock product with a low price") {
+  product(id: "product-1") {
+    name
+    price
+    inStock
+  }
+}

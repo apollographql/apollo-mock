@@ -1,0 +1,9 @@
+// Klib ABI Dump
+// Targets: [linuxX64, macosArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.apollographql.mock:server>
+final fun apollo.mock.server/serve(kotlin/String, kotlin/String, kotlin/Int = ...) // apollo.mock.server/serve|serve(kotlin.String;kotlin.String;kotlin.Int){}[0]

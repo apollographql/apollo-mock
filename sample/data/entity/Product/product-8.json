@@ -1,0 +1,26 @@
+{
+    "name": "Ergonomic Mechanical Keyboard",
+    "description": "Tactile brown switches, RGB backlighting, and programmable macro keys for productivity.",
+    "price": 129.0,
+    "currency": "EUR",
+    "inStock": false,
+    "id": "product-8",
+    "category": {
+        "__typename": "Category",
+        "id": "category-8"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-1"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-2"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-3"
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "name": "Hydrating Facial Serum with Hyaluronic Acid",
+    "description": "null",
+    "price": 42.0,
+    "currency": "EUR",
+    "inStock": false,
+    "id": "product-5",
+    "category": {
+        "__typename": "Category",
+        "id": "category-5"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-6"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-7"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-8"
+        }
+    ]
+}

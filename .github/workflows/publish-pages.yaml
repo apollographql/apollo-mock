@@ -1,0 +1,23 @@
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  publish-pages:
+    runs-on: ubuntu-latest
+    if: github.event.repository.fork == false
+
+    # Required for the `deploy-pages` action
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+      - run: |
+          export JAVA_HOME=$JAVA_HOME_21_X64 # Remove when ubuntu-latest updates to Java 21
+          ./gradlew librarianStaticContent
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 #v5.0.0
+        with:
+          path: "build/static"
+      - uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 #v5.0.1

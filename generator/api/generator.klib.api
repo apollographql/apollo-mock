@@ -1,0 +1,19 @@
+// Klib ABI Dump
+// Targets: [linuxX64, macosArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.apollographql.mock:generator>
+final class apollo.mock.generator/GraphqlFiles { // apollo.mock.generator/GraphqlFiles|null[0]
+    constructor <init>(kotlin/String, kotlin.collections/List<kotlin/String>) // apollo.mock.generator/GraphqlFiles.<init>|<init>(kotlin.String;kotlin.collections.List<kotlin.String>){}[0]
+
+    final val operations // apollo.mock.generator/GraphqlFiles.operations|{}operations[0]
+        final fun <get-operations>(): kotlin.collections/List<kotlin/String> // apollo.mock.generator/GraphqlFiles.operations.<get-operations>|<get-operations>(){}[0]
+    final val schema // apollo.mock.generator/GraphqlFiles.schema|{}schema[0]
+        final fun <get-schema>(): kotlin/String // apollo.mock.generator/GraphqlFiles.schema.<get-schema>|<get-schema>(){}[0]
+}
+
+final fun apollo.mock.generator/loadGraphqlFiles(kotlin/String): apollo.mock.generator/GraphqlFiles // apollo.mock.generator/loadGraphqlFiles|loadGraphqlFiles(kotlin.String){}[0]
+final suspend fun apollo.mock.generator/generate(kotlin/String, kotlin.sequences/Sequence<kotlin/String>, kotlin/String, kotlin/String = ..., kotlin/Int = ..., kotlin/String? = ..., kotlin/String = ..., kotlin/String? = ...) // apollo.mock.generator/generate|generate(kotlin.String;kotlin.sequences.Sequence<kotlin.String>;kotlin.String;kotlin.String;kotlin.Int;kotlin.String?;kotlin.String;kotlin.String?){}[0]

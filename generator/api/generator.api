@@ -1,0 +1,15 @@
+public final class apollo/mock/generator/GeneratorKt {
+	public static final fun generate (Ljava/lang/String;Lkotlin/sequences/Sequence;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun generate$default (Ljava/lang/String;Lkotlin/sequences/Sequence;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class apollo/mock/generator/GraphqlFiles {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun getOperations ()Ljava/util/List;
+	public final fun getSchema ()Ljava/lang/String;
+}
+
+public final class apollo/mock/generator/GraphqlFilesKt {
+	public static final fun loadGraphqlFiles (Ljava/lang/String;)Lapollo/mock/generator/GraphqlFiles;
+}
+

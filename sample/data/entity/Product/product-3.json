@@ -1,0 +1,26 @@
+{
+    "name": "Cast Iron Skillet Set",
+    "description": "Pre-seasoned 10-inch and 12-inch skillets for superior heat retention and even cooking.",
+    "price": 64.5,
+    "currency": "USD",
+    "inStock": false,
+    "id": "product-3",
+    "category": {
+        "__typename": "Category",
+        "id": "category-3"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-4"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-5"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-6"
+        }
+    ]
+}
