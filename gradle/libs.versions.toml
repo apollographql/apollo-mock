@@ -28,7 +28,7 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 tapmoc = { id = "com.gradleup.tapmoc", version = "0.4.2"}
-gradleup-librarian = { id = "com.gradleup.librarian", version = "0.2.2-SNAPSHOT-56c6c6f5ae3750f8388eac59e2f7c7e88bf68cea" }
+gradleup-librarian = { id = "com.gradleup.librarian", version = "0.2.2-SNAPSHOT-51318fc735e5cfc561c7cb41bb22c1d7647d0fdb" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 gratatouille = { id = "com.gradleup.gratatouille", version.ref = "gratatouille" }
 gratatouille-tasks = { id = "com.gradleup.gratatouille.tasks", version.ref = "gratatouille" }
