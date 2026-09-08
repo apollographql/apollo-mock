@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.4.10"
-ktor = "3.5.1"
+ktor = "3.5.2"
 apollo = "5.0.1"
 apollo-execution = "0.1.3-SNAPSHOT-d346e2240d076db0d1f973846dcb7f6e559879e3"
 kotlinx-serialization = "1.11.0"
