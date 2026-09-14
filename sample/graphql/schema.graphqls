@@ -1,0 +1,39 @@
+scalar Any
+
+directive @mock(hint: String, value: Any) on QUERY | MUTATION | SUBSCRIPTION | FIELD
+
+type Query {
+  products: [Product!]!
+  product(id: ID!): Product
+  categories: [Category!]!
+  reviews: [Review!]!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  currency: Currency!
+  inStock: Boolean!
+  category: Category!
+  reviews: [Review!]!
+}
+
+type Category {
+  id: ID!
+  name: String!
+}
+
+type Review {
+  id: ID!
+  rating: Int!
+  text: String!
+  author: String!
+}
+
+enum Currency {
+  USD
+  EUR
+  GBP
+}

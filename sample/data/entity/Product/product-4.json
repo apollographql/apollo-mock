@@ -1,0 +1,26 @@
+{
+    "name": "Single-Origin Ethiopian Coffee Beans",
+    "description": "Light roast with notes of blueberry and jasmine. Organic, 1kg vacuum-sealed bag.",
+    "price": 28.75,
+    "currency": "GBP",
+    "inStock": true,
+    "id": "product-4",
+    "category": {
+        "__typename": "Category",
+        "id": "category-4"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-5"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-6"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-7"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+query Products {
+  products {
+    id
+    name
+  }
+}
+
+subscription ProductAdded {
+  productAdded {
+    id
+    name
+  }
+}

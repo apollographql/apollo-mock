@@ -1,0 +1,21 @@
+// Klib ABI Dump
+// Targets: [linuxX64, macosArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.apollographql.mock:executable-schema>
+final class apollo.mock.executableschema/EntityStore { // apollo.mock.executableschema/EntityStore|null[0]
+    constructor <init>(kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin.collections/Map<kotlin/String, kotlin/Any?>>>) // apollo.mock.executableschema/EntityStore.<init>|<init>(kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.collections.Map<kotlin.String,kotlin.Any?>>>){}[0]
+
+    final fun all(kotlin.collections/Collection<kotlin/String>): kotlin.collections/List<kotlin.collections/Map<kotlin/String, kotlin/Any?>> // apollo.mock.executableschema/EntityStore.all|all(kotlin.collections.Collection<kotlin.String>){}[0]
+    final fun byId(kotlin.collections/Collection<kotlin/String>, kotlin/Any?): kotlin.collections/Map<kotlin/String, kotlin/Any?>? // apollo.mock.executableschema/EntityStore.byId|byId(kotlin.collections.Collection<kotlin.String>;kotlin.Any?){}[0]
+    final fun contains(kotlin.collections/Collection<kotlin/String>): kotlin/Boolean // apollo.mock.executableschema/EntityStore.contains|contains(kotlin.collections.Collection<kotlin.String>){}[0]
+
+    final object Companion { // apollo.mock.executableschema/EntityStore.Companion|null[0]
+        final fun load(kotlinx.io.files/Path): apollo.mock.executableschema/EntityStore // apollo.mock.executableschema/EntityStore.Companion.load|load(kotlinx.io.files.Path){}[0]
+    }
+}
+
+final fun apollo.mock.executableschema/mockExecutableSchemaBuilder(com.apollographql.apollo.ast/GQLDocument, kotlinx.io.files/Path): com.apollographql.apollo.execution/ExecutableSchema.Builder // apollo.mock.executableschema/mockExecutableSchemaBuilder|mockExecutableSchemaBuilder(com.apollographql.apollo.ast.GQLDocument;kotlinx.io.files.Path){}[0]

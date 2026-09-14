@@ -1,0 +1,104 @@
+---
+title: CLI
+---
+
+Download the `apollo-mock` binary for your platform from the [latest release](https://github.com/apollographql/apollo-mock/releases/latest), or run it from source with Gradle:
+
+```shell
+./gradlew :cli:runJvm --args="<command> <options>"
+```
+
+The rest of this page uses the `apollo-mock` binary directly; substitute the Gradle invocation above if you're running from source.
+
+### Requirements
+
+Generating data runs fully locally with [Ollama](https://ollama.com/) — no API key needed. Alternatively,
+it can use the [Anthropic API](https://console.anthropic.com/) if you have an API key.
+
+### 1. Generate fake data
+
+`--graphql-dir` points at a directory containing `.graphql`/`.graphqls` files: exactly one of them
+must be the schema (the file containing at least one type system definition, e.g. `type`/`enum`/
+`directive`), the rest are treated as operation files (see [Mocking operations](#mocking-operations)
+below). `sample/graphql` has an example of both.
+
+```shell
+ollama pull llama3.2
+apollo-mock generate --graphql-dir sample/graphql --output-dir data --provider ollama
+```
+
+Use `--model` to pick another model and `--base-url` for a non-default Ollama endpoint.
+
+Alternatively, use the Anthropic API with `--provider anthropic`:
+
+```shell
+export ANTHROPIC_API_KEY=sk-ant-...
+apollo-mock generate --graphql-dir sample/graphql --output-dir data --provider anthropic
+```
+
+The API key can also be passed with `--api-key` instead of the `ANTHROPIC_API_KEY` environment variable.
+Use `--model` to pick another Claude model (default: `claude-haiku-4-5`).
+
+For testing, `--provider random` fills the schema with random data (lorem ipsum text, random
+enum/number/boolean values) without calling any LLM:
+
+```shell
+apollo-mock generate --graphql-dir sample/graphql --output-dir data --provider random
+```
+
+This writes, under `data/`:
+
+* `entity/<TypeName>/<id>.json`: one file per schema-based fake entity. Scalar and enum fields are
+  filled by the LLM; fields pointing to other types are linked with `{__typename, id}` references
+  that the server hydrates at execution time. Regenerating with the same `--output-dir` keeps existing
+  entities stable across schema changes: fields removed from the schema are dropped, only newly
+  added fields are asked from the LLM, and `id`s never change.
+* `operation/<operationName>.json`: one file per named operation using the `@mock` directive (see
+  below), mapping the GraphQL path in the document to the mocked value.
+
+#### Mocking operations
+
+Besides schema-based entities, individual operations can be mocked with the `@mock` directive:
+
+```graphql
+directive @mock(hint: String, value: Any) on QUERY | MUTATION | SUBSCRIPTION | FIELD
+```
+
+* `@mock(value: ...)` uses the given GraphQL literal verbatim.
+* `@mock(hint: "...")` passes the hint to the data provider, which generates a value matching the
+  field's (or, at the operation root, the whole selection set's) shape.
+
+```graphql
+query GetProducts {
+  products {
+    name
+    price @mock(value: 9.99)
+    category @mock(hint: "a category for kitchen appliances") {
+      name
+    }
+  }
+}
+```
+
+writes `operation/GetProducts.json` as `{"products.price": 9.99, "products.category": {"name": "..."}}`.
+A `@mock` directive on the operation itself (as opposed to a field) mocks the whole response, stored
+under the empty-string path.
+
+### 2. Serve the fake data
+
+```shell
+apollo-mock serve --schema sample/graphql/schema.graphqls --data data
+```
+
+Then:
+
+* GraphQL endpoint: http://localhost:4000/graphql
+* Sandbox: http://localhost:4000/
+
+```shell
+curl -s http://localhost:4000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ products { name price category { name } reviews { rating author } } }"}'
+```
+
+Pass `--port 0` to have the OS pick a free port automatically.

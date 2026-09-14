@@ -1,0 +1,78 @@
+---
+title: Gradle plugin
+---
+
+The Gradle Plugin automates generating and updating the mock data for Gradle users.
+
+### Applying the plugin
+
+```kotlin title="build.gradle.kts"
+plugins {
+  id("com.apollographql.mock") version "<version>"
+}
+```
+
+### Configuring a service
+
+Declare one `service` block per set of GraphQL files you want to mock. `srcDir` is required and points
+at a directory containing a schema and, optionally, operation files (see
+[Mocking operations](/apollo-mock/cli/#mocking-operations)):
+
+```kotlin title="build.gradle.kts"
+apolloMock {
+  service("service") {
+    srcDir("src/main/graphql")
+  }
+}
+```
+
+This registers a `generateServiceMockData` task that writes generated JSON files under
+`src/main/graphql/mock-data`.
+
+Because calling LLMs is not cheap, the task is not wired to your build by default. We recommend running the task manually.
+
+```shell
+./gradlew generateServiceMockData
+```
+
+If your schema changes, the task regenerates the mock data, taking into account the existing data:
+
+* unused data is removed. 
+* new data is added.
+* existing data is kept.
+
+This makes sure that tests stay reproducible.
+
+
+### All options
+
+The `service` block supports the following properties:
+
+```kotlin title="build.gradle.kts"
+apolloMock {
+  service("service") {
+    srcDir("src/main/graphql")
+    
+    // Required: Use the Anthropic API
+    provider.set("anthropic")
+    
+    // Optional: use a custom model
+    model.set("claude-3-opus-20240229")
+    
+    // Required for Anthropic: set the API key
+    apiKey.set(System.getenv("ANTHROPIC_API_KEY"))
+    
+    // Optional for Ollama: change the ollama endpoint
+    baseUrl.set("http://localhost:11434")
+    
+    // Optional: list size for list fields
+    listSize.set(10)
+  }
+}
+```
+
+### Consuming the data
+
+Once the mock data is generated, serve it with the [`server`](/apollo-mock/server/) module, plug it
+directly into an `ApolloClient` with [`apollo-network-transport`](/apollo-mock/network-transport/), or
+build your own `ExecutableSchema` from it with [`executable-schema`](/apollo-mock/executable-schema/).

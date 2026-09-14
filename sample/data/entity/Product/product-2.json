@@ -1,0 +1,26 @@
+{
+    "name": "Merino Wool Crewneck Sweater",
+    "description": "Temperature-regulating base layer suitable for casual wear and outdoor activities.",
+    "price": 85.0,
+    "currency": "EUR",
+    "inStock": true,
+    "id": "product-2",
+    "category": {
+        "__typename": "Category",
+        "id": "category-2"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-3"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-4"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-5"
+        }
+    ]
+}

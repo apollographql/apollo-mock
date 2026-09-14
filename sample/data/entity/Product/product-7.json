@@ -1,0 +1,26 @@
+{
+    "name": "Hardcover Lined Journal Notebook",
+    "description": "null",
+    "price": 35.0,
+    "currency": "GBP",
+    "inStock": true,
+    "id": "product-7",
+    "category": {
+        "__typename": "Category",
+        "id": "category-7"
+    },
+    "reviews": [
+        {
+            "__typename": "Review",
+            "id": "review-8"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-1"
+        },
+        {
+            "__typename": "Review",
+            "id": "review-2"
+        }
+    ]
+}

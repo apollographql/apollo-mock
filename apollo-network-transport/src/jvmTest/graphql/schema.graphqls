@@ -1,0 +1,12 @@
+type Query {
+  products: [Product!]!
+}
+
+type Subscription {
+  productAdded: Product
+}
+
+type Product {
+  id: ID!
+  name: String!
+}

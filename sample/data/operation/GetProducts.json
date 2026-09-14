@@ -1,0 +1,7 @@
+{
+    "products.price": 9.99,
+    "products.inStock": true,
+    "products.category": {
+        "name": "Small Kitchen Appliances"
+    }
+}

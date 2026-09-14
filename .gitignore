@@ -1,0 +1,14 @@
+.claude/
+.gradle/
+build/
+.idea/
+*.iml
+local.properties
+.kotlin/
+data/
+!sample/data/
+!sample/data/**
+**/graphql/mock-data/
+node_modules/
+dist/
+.astro/

@@ -1,0 +1,43 @@
+---
+title: Serving mock data
+---
+
+The `server` module serves a working GraphQL server from the JSON files written by the
+[generator](/apollo-mock/cli/#1-generate-fake-data), using [`executable-schema`](/apollo-mock/executable-schema/)
+to resolve fields against the fake entities and a [Ktor](https://ktor.io/) CIO engine to serve requests.
+It's what the CLI's `serve` subcommand runs under the hood.
+
+### Adding the dependency
+
+```kotlin title="build.gradle.kts"
+dependencies {
+  implementation("com.apollographql.mock:server:<version>")
+}
+```
+
+### `serve`
+
+```kotlin
+fun serve(schemaPath: String, dataPath: String, port: Int = 4000)
+```
+
+* `schemaPath`: path to the `.graphqls` schema file.
+* `dataPath`: path to the directory of JSON files written by the generator (containing an `entity/`
+  subdirectory).
+* `port`: the port to listen on. Pass `0` to have the OS allocate a free port automatically (`-1` is
+  not supported and throws an `IllegalArgumentException`).
+
+```kotlin
+import apollo.mock.server.serve
+
+serve(schemaPath = "sample/graphql/schema.graphqls", dataPath = "data", port = 4000)
+```
+
+This blocks the calling thread until the server is stopped, and exposes:
+
+* a GraphQL endpoint at `http://localhost:<port>/graphql`
+* a [sandbox](https://apollographql.com/) at `http://localhost:<port>/`
+
+If you need more control (a different engine, additional Ktor modules, a non-blocking start), build your
+own server with [`mockExecutableSchemaBuilder`](/apollo-mock/executable-schema/) and Ktor's
+`apolloModule`/`apolloSandboxModule` directly instead of calling `serve`.

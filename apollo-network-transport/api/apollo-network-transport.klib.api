@@ -1,0 +1,9 @@
+// Klib ABI Dump
+// Targets: [linuxX64, macosArm64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <com.apollographql.mock:apollo-network-transport>
+final fun apollo.mock.networktransport/MockNetworkTransport(com.apollographql.apollo.ast/GQLDocument, kotlinx.io.files/Path): com.apollographql.apollo.network/NetworkTransport // apollo.mock.networktransport/MockNetworkTransport|MockNetworkTransport(com.apollographql.apollo.ast.GQLDocument;kotlinx.io.files.Path){}[0]

@@ -1,0 +1,44 @@
+---
+title: Building an executable schema
+---
+
+The `executable-schema` module builds an `ExecutableSchema.Builder` (from
+[`apollo-execution`](https://github.com/apollographql/apollo-kotlin-execution)) that resolves fields
+against the fake entities produced by the [generator](/apollo-mock/cli/#1-generate-fake-data). It's the
+piece the [`server`](/apollo-mock/cli/#2-serve-the-fake-data) module, the CLI `serve` command, and
+[`apollo-network-transport`](/apollo-mock/network-transport/) are built on, and can be used directly to
+embed a mock GraphQL server in your own JVM/Kotlin Multiplatform code.
+
+### Adding the dependency
+
+```kotlin title="build.gradle.kts"
+dependencies {
+  implementation("com.apollographql.mock:executable-schema:<version>")
+}
+```
+
+### `mockExecutableSchemaBuilder`
+
+```kotlin
+fun mockExecutableSchemaBuilder(schema: GQLDocument, dataPath: Path): ExecutableSchema.Builder
+```
+
+Given a parsed `schema` and the path to the directory of JSON files written by the generator (containing
+an `entity/` subdirectory), this returns an `ExecutableSchema.Builder` wired to resolve fields against
+those fake entities:
+
+```kotlin
+val schemaText = /* read schema.graphqls */
+val schema = mockExecutableSchemaBuilder(schemaText.toGQLDocument(), Path("data")).build()
+
+val response = schema.execute(request)
+```
+
+It returns a `Builder` rather than a built `ExecutableSchema` so callers can customize it further before calling `build()`.
+
+### `EntityStore`
+
+Under the hood, `mockExecutableSchemaBuilder` loads the fake entities with `EntityStore.load(dataPath)`,
+which reads the `entity/<TypeName>/<id>.json` files written by the generator and returns an `EntityStore`
+holding them in memory, keyed by type name. Use it directly if you need to inspect or resolve fake
+entities outside of an `ExecutableSchema` (e.g. in a custom resolver).

@@ -1,0 +1,4 @@
+public final class apollo/mock/networktransport/MockNetworkTransportKt {
+	public static final fun MockNetworkTransport (Lcom/apollographql/apollo/ast/GQLDocument;Lkotlinx/io/files/Path;)Lcom/apollographql/apollo/network/NetworkTransport;
+}
+

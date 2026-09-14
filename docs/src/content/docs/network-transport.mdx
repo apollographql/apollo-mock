@@ -1,0 +1,51 @@
+---
+title: Apollo Kotlin integration
+---
+
+The `apollo-network-transport` module implements Apollo Kotlin's
+[`NetworkTransport`](https://www.apollographql.com/docs/kotlin/) so an `ApolloClient` can talk to the
+mock data directly, in-process, instead of going through the [`server`](/apollo-mock/server/)'s HTTP
+endpoint. It builds on [`executable-schema`](/apollo-mock/executable-schema/) and handles queries,
+mutations and subscriptions uniformly.
+
+This is a good fit for instrumented/unit tests: an `ApolloClient` can run against realistic fake data
+without starting a server or hitting the network.
+
+### Adding the dependency
+
+```kotlin title="build.gradle.kts"
+dependencies {
+  implementation("com.apollographql.mock:apollo-network-transport:<version>")
+}
+```
+
+### `MockNetworkTransport`
+
+```kotlin
+import apollo.mock.networktransport.MockNetworkTransport
+import com.apollographql.apollo.ApolloClient
+
+val apolloClient = ApolloClient.Builder()
+    .networkTransport(MockNetworkTransport(schemaText.toGQLDocument(), Path("data")))
+    .build()
+```
+
+```kotlin
+fun MockNetworkTransport(schema: GQLDocument, dataPath: Path): NetworkTransport
+```
+
+`dataPath` points at the directory of JSON files written by the generator, same as
+[`mockExecutableSchemaBuilder`](/apollo-mock/executable-schema/) which it's built on.
+
+Queries and mutations execute once against the schema; subscriptions are forwarded to the schema's
+`subscribe()` and stream one response per emitted event. Any exception thrown while resolving an
+operation is reported as an `ApolloResponse` with `exception` set, matching how other `NetworkTransport`
+implementations behave, rather than crashing the client.
+
+### Subscriptions
+
+For a subscription field to resolve, its resolver must return a `Flow<>` of values instead of a plain
+value. The [`executable-schema`](/apollo-mock/executable-schema/) module's default resolver does this
+automatically: a Subscription root field pushes the same static fake value a Query field of the same
+shape would, once, and then completes — since the generator only produces static data, not a live event
+stream. Bring your own resolver instead if you need a subscription that pushes multiple events over time.

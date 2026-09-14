@@ -1,0 +1,5 @@
+public final class apollo/mock/server/ServerKt {
+	public static final fun serve (Ljava/lang/String;Ljava/lang/String;I)V
+	public static synthetic fun serve$default (Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)V
+}
+
