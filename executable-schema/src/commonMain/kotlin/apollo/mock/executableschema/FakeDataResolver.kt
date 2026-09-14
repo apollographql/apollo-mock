@@ -15,20 +15,59 @@ import kotlin.collections.get
 import kotlinx.coroutines.flow.flowOf
 
 /**
- * A generic [Resolver] backed by an [EntityStore]:
+ * A generic [Resolver] backed by an [EntityStore] and [OperationMockStore]:
  *
- * - Query root fields return the stored entities of the field type: all of them for
- *   list fields, a lookup by `id` argument when one is passed, the first one otherwise.
+ * - A field whose GraphQL path (see [mockPath]) has a per-operation mock (looked up using the operation
+ *   name found in [CurrentOperationName]) returns that mocked value, taking precedence over everything else.
+ * - Otherwise, Query root fields return the stored entities of the field type: all of them for
+ *   list fields, a lookup by `id` argument when one is passed, the first one otherwise. A whole-operation
+ *   mock (the empty path) is used as a stand-in root object for Query/Mutation/Subscription root fields
+ *   when present.
  * - Subscription root fields return a one-shot [kotlinx.coroutines.flow.Flow] emitting the same
  *   value a Mutation/Query field would, since the generator only produces static fake data.
  * - Other fields read the value from the parent entity. `{__typename, id}` references
  *   written by the generator are hydrated into full entities.
  */
-internal class FakeDataResolver(private val store: EntityStore) : Resolver {
+internal class FakeDataResolver(
+    private val store: EntityStore,
+    private val operationMocks: OperationMockStore,
+) : Resolver {
   override suspend fun resolve(resolveInfo: ResolveInfo): Any? {
     val schema = resolveInfo.schema
     val fieldType = resolveInfo.fieldDefinition().type
     val concreteTypes = schema.concreteTypes(fieldType.rawTypeName())
+    val mocks = operationMocks.forOperation(resolveInfo.executionContext[CurrentOperationName]?.name)
+
+    val value = resolveValue(resolveInfo, schema, fieldType, concreteTypes, mocks)
+    return if (resolveInfo.parentType == schema.rootTypeNameOrNullFor("subscription")) {
+      flowOf(value)
+    } else {
+      value
+    }
+  }
+
+  private fun resolveValue(
+      resolveInfo: ResolveInfo,
+      schema: Schema,
+      fieldType: GQLType,
+      concreteTypes: List<String>,
+      mocks: Map<String, Any?>?,
+  ): Any? {
+    val path = resolveInfo.mockPath()
+    if (mocks != null && path in mocks) {
+      return hydrate(mocks[path], concreteTypes)
+    }
+
+    val isRootField = resolveInfo.parentType == schema.rootTypeNameOrNullFor("query") ||
+        resolveInfo.parentType == schema.rootTypeNameOrNullFor("mutation") ||
+        resolveInfo.parentType == schema.rootTypeNameOrNullFor("subscription")
+
+    if (isRootField) {
+      val rootMock = mocks?.get("") as? Map<*, *>
+      if (rootMock != null) {
+        return hydrate(rootMock[resolveInfo.responseName()], concreteTypes)
+      }
+    }
 
     if (resolveInfo.parentType == schema.rootTypeNameOrNullFor("query")) {
       if (!store.contains(concreteTypes)) {
@@ -43,12 +82,7 @@ internal class FakeDataResolver(private val store: EntityStore) : Resolver {
     }
 
     val parent = resolveInfo.parentObject as? Map<*, *> ?: return null
-    val value = hydrate(parent[resolveInfo.fieldName], concreteTypes)
-    return if (resolveInfo.parentType == schema.rootTypeNameOrNullFor("subscription")) {
-      flowOf(value)
-    } else {
-      value
-    }
+    return hydrate(parent[resolveInfo.fieldName], concreteTypes)
   }
 
   /**
@@ -91,3 +125,17 @@ private fun Schema.concreteTypes(typeName: String): List<String> {
     else -> emptyList()
   }
 }
+
+/**
+ * The response name of the field currently being resolved, matching how the generator's `@mock` directive
+ * processing builds its per-operation mock paths (aliases included). [ResolveInfo.path] always ends with
+ * this field's response name: list indices only ever appear as intermediate elements.
+ */
+private fun ResolveInfo.responseName(): String = path.last() as String
+
+/**
+ * The dot-separated GraphQL path of the field currently being resolved, matching the keys produced by the
+ * generator's `@mock` directive processing: list indices are stripped since a mock applies to every item
+ * of a list field, not to a specific index.
+ */
+private fun ResolveInfo.mockPath(): String = path.filterIsInstance<String>().joinToString(".")

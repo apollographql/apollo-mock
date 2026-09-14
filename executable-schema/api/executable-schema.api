@@ -1,3 +1,17 @@
+public final class apollo/mock/executableschema/CurrentOperationName : com/apollographql/apollo/api/ExecutionContext$Element {
+	public static final field Key Lapollo/mock/executableschema/CurrentOperationName$Key;
+	public fun <init> (Ljava/lang/String;)V
+	public fun fold (Ljava/lang/Object;Lkotlin/jvm/functions/Function2;)Ljava/lang/Object;
+	public fun get (Lcom/apollographql/apollo/api/ExecutionContext$Key;)Lcom/apollographql/apollo/api/ExecutionContext$Element;
+	public fun getKey ()Lcom/apollographql/apollo/api/ExecutionContext$Key;
+	public final fun getName ()Ljava/lang/String;
+	public fun minusKey (Lcom/apollographql/apollo/api/ExecutionContext$Key;)Lcom/apollographql/apollo/api/ExecutionContext;
+	public fun plus (Lcom/apollographql/apollo/api/ExecutionContext;)Lcom/apollographql/apollo/api/ExecutionContext;
+}
+
+public final class apollo/mock/executableschema/CurrentOperationName$Key : com/apollographql/apollo/api/ExecutionContext$Key {
+}
+
 public final class apollo/mock/executableschema/EntityStore {
 	public static final field Companion Lapollo/mock/executableschema/EntityStore$Companion;
 	public fun <init> (Ljava/util/Map;)V
@@ -12,5 +26,15 @@ public final class apollo/mock/executableschema/EntityStore$Companion {
 
 public final class apollo/mock/executableschema/ExecutableSchemaKt {
 	public static final fun mockExecutableSchemaBuilder (Lcom/apollographql/apollo/ast/GQLDocument;Lkotlinx/io/files/Path;)Lcom/apollographql/apollo/execution/ExecutableSchema$Builder;
+}
+
+public final class apollo/mock/executableschema/OperationMockStore {
+	public static final field Companion Lapollo/mock/executableschema/OperationMockStore$Companion;
+	public fun <init> (Ljava/util/Map;)V
+	public final fun forOperation (Ljava/lang/String;)Ljava/util/Map;
+}
+
+public final class apollo/mock/executableschema/OperationMockStore$Companion {
+	public final fun load (Lkotlinx/io/files/Path;)Lapollo/mock/executableschema/OperationMockStore;
 }
 

@@ -6,6 +6,17 @@
 // - Show declarations: true
 
 // Library unique name: <com.apollographql.mock:executable-schema>
+final class apollo.mock.executableschema/CurrentOperationName : com.apollographql.apollo.api/ExecutionContext.Element { // apollo.mock.executableschema/CurrentOperationName|null[0]
+    constructor <init>(kotlin/String?) // apollo.mock.executableschema/CurrentOperationName.<init>|<init>(kotlin.String?){}[0]
+
+    final val key // apollo.mock.executableschema/CurrentOperationName.key|{}key[0]
+        final fun <get-key>(): com.apollographql.apollo.api/ExecutionContext.Key<*> // apollo.mock.executableschema/CurrentOperationName.key.<get-key>|<get-key>(){}[0]
+    final val name // apollo.mock.executableschema/CurrentOperationName.name|{}name[0]
+        final fun <get-name>(): kotlin/String? // apollo.mock.executableschema/CurrentOperationName.name.<get-name>|<get-name>(){}[0]
+
+    final object Key : com.apollographql.apollo.api/ExecutionContext.Key<apollo.mock.executableschema/CurrentOperationName> // apollo.mock.executableschema/CurrentOperationName.Key|null[0]
+}
+
 final class apollo.mock.executableschema/EntityStore { // apollo.mock.executableschema/EntityStore|null[0]
     constructor <init>(kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin.collections/Map<kotlin/String, kotlin/Any?>>>) // apollo.mock.executableschema/EntityStore.<init>|<init>(kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.collections.Map<kotlin.String,kotlin.Any?>>>){}[0]
 
@@ -15,6 +26,16 @@ final class apollo.mock.executableschema/EntityStore { // apollo.mock.executable
 
     final object Companion { // apollo.mock.executableschema/EntityStore.Companion|null[0]
         final fun load(kotlinx.io.files/Path): apollo.mock.executableschema/EntityStore // apollo.mock.executableschema/EntityStore.Companion.load|load(kotlinx.io.files.Path){}[0]
+    }
+}
+
+final class apollo.mock.executableschema/OperationMockStore { // apollo.mock.executableschema/OperationMockStore|null[0]
+    constructor <init>(kotlin.collections/Map<kotlin/String, kotlin.collections/Map<kotlin/String, kotlin/Any?>>) // apollo.mock.executableschema/OperationMockStore.<init>|<init>(kotlin.collections.Map<kotlin.String,kotlin.collections.Map<kotlin.String,kotlin.Any?>>){}[0]
+
+    final fun forOperation(kotlin/String?): kotlin.collections/Map<kotlin/String, kotlin/Any?>? // apollo.mock.executableschema/OperationMockStore.forOperation|forOperation(kotlin.String?){}[0]
+
+    final object Companion { // apollo.mock.executableschema/OperationMockStore.Companion|null[0]
+        final fun load(kotlinx.io.files/Path): apollo.mock.executableschema/OperationMockStore // apollo.mock.executableschema/OperationMockStore.Companion.load|load(kotlinx.io.files.Path){}[0]
     }
 }
 

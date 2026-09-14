@@ -58,7 +58,7 @@ class EntityStore(
   }
 }
 
-private fun JsonElement.toKotlin(): Any? {
+internal fun JsonElement.toKotlin(): Any? {
   return when (this) {
     is JsonNull -> null
     is JsonPrimitive -> if (isString) {
