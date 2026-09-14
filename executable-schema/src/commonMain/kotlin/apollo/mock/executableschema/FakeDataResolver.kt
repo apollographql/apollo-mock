@@ -30,7 +30,7 @@ internal class FakeDataResolver(private val store: EntityStore) : Resolver {
     val fieldType = resolveInfo.fieldDefinition().type
     val concreteTypes = schema.concreteTypes(fieldType.rawTypeName())
 
-    if (resolveInfo.parentType == schema.rootTypeNameFor("query")) {
+    if (resolveInfo.parentType == schema.rootTypeNameOrNullFor("query")) {
       if (!store.contains(concreteTypes)) {
         return null
       }

@@ -12,13 +12,14 @@ import kotlinx.io.files.Path
 fun mockExecutableSchemaBuilder(schema: GQLDocument, dataPath: Path): ExecutableSchema.Builder {
   val store = EntityStore.load(dataPath)
   return ExecutableSchema.Builder()
-      .schema(schema)
-      .queryRoot { emptyMap<String, Any?>() }
-      .mutationRoot { emptyMap<String, Any?>() }
-      .subscriptionRoot { emptyMap<String, Any?>() }
-      .resolver(FakeDataResolver(store))
-      .typeResolver { obj, resolveTypeInfo ->
-        (obj as? Map<*, *>)?.get("__typename") as? String
-            ?: error("Cannot resolve concrete type for '$obj' (abstract type '${resolveTypeInfo.type}')")
-      }
+    .schema(schema)
+    .queryRoot { emptyMap<String, Any?>() }
+    .mutationRoot { emptyMap<String, Any?>() }
+    .subscriptionRoot { emptyMap<String, Any?>() }
+    .resolver(FakeDataResolver(store))
+    .exposeServiceCapabilities(false)
+    .typeResolver { obj, resolveTypeInfo ->
+      (obj as? Map<*, *>)?.get("__typename") as? String
+        ?: error("Cannot resolve concrete type for '$obj' (abstract type '${resolveTypeInfo.type}')")
+    }
 }

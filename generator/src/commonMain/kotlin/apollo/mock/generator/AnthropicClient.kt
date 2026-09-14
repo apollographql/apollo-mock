@@ -1,7 +1,6 @@
 package apollo.mock.generator
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -25,7 +24,7 @@ import kotlinx.serialization.json.putJsonObject
  * (`output_config.format`) to constrain responses to a JSON schema.
  */
 internal class AnthropicClient(private val apiKey: String, private val model: String) : DataProvider {
-  private val httpClient = HttpClient(CIO) {
+  private val httpClient = HttpClient(httpClientEngineFactory()) {
     install(HttpTimeout) {
       requestTimeoutMillis = 5 * 60 * 1000
     }

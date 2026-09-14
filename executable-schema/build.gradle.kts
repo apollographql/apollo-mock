@@ -21,6 +21,7 @@ kotlin {
     commonMain.dependencies {
       implementation(libs.apollo.ast)
       implementation(libs.apollo.execution.runtime)
+      implementation(libs.apollo.execution)
       implementation(libs.kotlinx.serialization.json)
       implementation(libs.kotlinx.io.core)
       implementation(libs.kotlinx.coroutines.core)

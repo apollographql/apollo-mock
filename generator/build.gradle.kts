@@ -27,6 +27,12 @@ kotlin {
     jvmTest.dependencies {
       implementation(kotlin("test"))
     }
+    macosArm64Main.dependencies {
+      implementation(libs.ktor.client.darwin)
+    }
+    linuxX64Main.dependencies {
+      implementation(libs.ktor.client.curl)
+    }
   }
 }
 

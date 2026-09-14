@@ -1,7 +1,6 @@
 package apollo.mock.generator
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -24,7 +23,7 @@ import kotlinx.serialization.json.putJsonArray
  * (the `format` field) to constrain responses to a JSON schema.
  */
 internal class OllamaClient(private val baseUrl: String, private val model: String) : DataProvider {
-  private val httpClient = HttpClient(CIO) {
+  private val httpClient = HttpClient(httpClientEngineFactory()) {
     install(HttpTimeout) {
       // Local models can take a while to generate a schema-constrained response
       requestTimeoutMillis = 5 * 60 * 1000
@@ -65,7 +64,7 @@ internal class OllamaClient(private val baseUrl: String, private val model: Stri
  * endpoint, so `generate()` doesn't have to hardcode a model that might not be installed.
  */
 internal suspend fun defaultOllamaModel(baseUrl: String): String {
-  val httpClient = HttpClient(CIO)
+  val httpClient = HttpClient(httpClientEngineFactory())
   val name = try {
     val responseBody = httpClient.get("$baseUrl/api/tags").bodyAsText()
     Json.parseToJsonElement(responseBody).jsonObject["models"]?.jsonArray
