@@ -9,6 +9,8 @@ Apollo Mock:
 * can update your data incrementally, making your tests reproducible.
 * mocks at the schema and operation level, making it easy to bootstrap a full server and override the behavior for specific operations.
 
+Compared to [graphql-faker](https://github.com/APIs-guru/graphql-faker) or other fake data generators, Apollo Mock doesn't need to annotate your schema with directives. Instead, the LLM generates realistic data based on the types, field names and descriptions in your schema..
+
 ### Requirements
 
 Generating data runs fully locally with [Ollama](https://ollama.com/) — no API key needed. Alternatively,
