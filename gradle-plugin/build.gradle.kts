@@ -8,10 +8,6 @@ plugins {
 
 Librarian.module(project)
 
-gratatouille {
-  pluginMarker("com.apollographql.mock")
-}
-
 dependencies {
   gratatouille(project(":gradle-tasks"))
   compileOnly(gradleApi())
