@@ -2,7 +2,13 @@
 title: CLI
 ---
 
-Download the `apollo-mock` binary for your platform from the [latest release](https://github.com/apollographql/apollo-mock/releases/latest), or run it from source with Gradle:
+Install the `apollo-mock` binary for your platform with:
+
+```shell
+curl -fsSL https://raw.githubusercontent.com/apollographql/apollo-mock/main/install.sh | sh
+```
+
+Or run it from source with Gradle:
 
 ```shell
 ./gradlew :cli:runJvm --args="<command> <options>"

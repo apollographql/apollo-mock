@@ -61,8 +61,33 @@ echo "Installed apollo-mock $version to $BIN_DIR/apollo-mock"
 case ":$PATH:" in
   *":$BIN_DIR:"*) ;;
   *)
-    echo ""
-    echo "Add it to your PATH by adding this line to your shell profile:"
-    echo "  export PATH=\"$BIN_DIR:\$PATH\""
+    export_line="export PATH=\"$BIN_DIR:\$PATH\""
+    rc_file=""
+
+    case "${SHELL:-}" in
+      */zsh) rc_file="${ZDOTDIR:-$HOME}/.zshrc" ;;
+      */bash)
+        if [ "$os" = "Darwin" ] && [ -f "$HOME/.bash_profile" ]; then
+          rc_file="$HOME/.bash_profile"
+        else
+          rc_file="$HOME/.bashrc"
+        fi
+        ;;
+    esac
+
+    if [ -n "$rc_file" ]; then
+      if [ -f "$rc_file" ] && grep -qF "$export_line" "$rc_file" 2>/dev/null; then
+        : # already added
+      else
+        printf '\n# Added by apollo-mock installer\n%s\n' "$export_line" >> "$rc_file"
+        echo ""
+        echo "Added apollo-mock to your PATH in $rc_file"
+      fi
+      echo "Run 'export PATH=\"$BIN_DIR:\$PATH\"' to use it now, or open a new shell."
+    else
+      echo ""
+      echo "Add it to your PATH by adding this line to your shell profile:"
+      echo "  $export_line"
+    fi
     ;;
 esac
