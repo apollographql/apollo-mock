@@ -28,19 +28,30 @@ private class GenerateCommand : CliktCommand(name = "generate") {
   private val outputPath by option("--output-dir", help = "directory where entity/ and operation/ JSON files are written").required()
   private val provider by option(
       "--provider",
-      help = "data provider: 'ollama', 'anthropic', or 'random' for random data with no LLM calls",
+      help = "data provider: 'ollama', 'anthropic', 'vercel' (Vercel AI Gateway), or 'random' for random data with no LLM calls",
   ).required()
   private val count by option("--count", help = "number of entities to generate per type (default: 8)").int().default(8)
-  private val modelName by option("--model", help = "model name (default: the first locally pulled model for ollama, claude-haiku-4-5 for anthropic)")
-  private val baseUrl by option("--base-url", help = "Ollama base url (default: http://localhost:11434)").default("http://localhost:11434")
+  private val modelName by option(
+      "--model",
+      help = "model name (default: the first locally pulled model for ollama, claude-haiku-4-5 for anthropic, anthropic/claude-haiku-4.5 for vercel)",
+  )
+  private val baseUrl by option(
+      "--base-url",
+      help = "provider base url (default: http://localhost:11434 for ollama, https://ai-gateway.vercel.sh/v1 for vercel)",
+  )
   private val apiKey by option(
       "--api-key",
       help = "Anthropic API key, required when --provider is 'anthropic'",
       envvar = "ANTHROPIC_API_KEY",
   )
+  private val gatewayApiKey by option(
+      "--gateway-api-key",
+      help = "Vercel AI Gateway API key, required when --provider is 'vercel'",
+      envvar = "AI_GATEWAY_API_KEY",
+  )
 
   override fun help(context: Context): String =
-      "Generates fake entities for a GraphQL schema, and mocks for @mock-annotated operations, using an LLM served by Ollama or the Anthropic API."
+      "Generates fake entities for a GraphQL schema, and mocks for @mock-annotated operations, using an LLM served by Ollama, the Anthropic API, or the Vercel AI Gateway."
 
   override fun run() = runBlocking {
     val graphqlFiles = loadGraphqlFiles(graphqlDir)
@@ -52,7 +63,7 @@ private class GenerateCommand : CliktCommand(name = "generate") {
         count = count,
         model = modelName,
         baseUrl = baseUrl,
-        apiKey = apiKey,
+        apiKey = if (provider == "vercel") gatewayApiKey else apiKey,
     )
   }
 }

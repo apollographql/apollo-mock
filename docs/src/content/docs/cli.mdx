@@ -19,7 +19,8 @@ The rest of this page uses the `apollo-mock` binary directly; substitute the Gra
 ### Requirements
 
 Generating data runs fully locally with [Ollama](https://ollama.com/) — no API key needed. Alternatively,
-it can use the [Anthropic API](https://console.anthropic.com/) if you have an API key.
+it can use the [Anthropic API](https://console.anthropic.com/) or the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway)
+if you have an API key.
 
 ### 1. Generate fake data
 
@@ -44,6 +45,18 @@ apollo-mock generate --graphql-dir sample/graphql --output-dir data --provider a
 
 The API key can also be passed with `--api-key` instead of the `ANTHROPIC_API_KEY` environment variable.
 Use `--model` to pick another Claude model (default: `claude-haiku-4-5`).
+
+Or use the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) with `--provider vercel`, which can
+route to any model it supports using a `creator/model` name (e.g. `openai/gpt-5-mini`):
+
+```shell
+export AI_GATEWAY_API_KEY=...
+apollo-mock generate --graphql-dir sample/graphql --output-dir data --provider vercel
+```
+
+The API key can also be passed with `--gateway-api-key` instead of the `AI_GATEWAY_API_KEY` environment
+variable. Use `--model` to pick another model (default: `anthropic/claude-haiku-4.5`) and `--base-url`
+for a non-default gateway endpoint.
 
 For testing, `--provider random` fills the schema with random data (lorem ipsum text, random
 enum/number/boolean values) without calling any LLM:

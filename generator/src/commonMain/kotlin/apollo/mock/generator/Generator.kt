@@ -33,7 +33,7 @@ import kotlinx.serialization.json.putJsonObject
 
 /**
  * Generates fake data for a GraphQL [schema] and its [operations] using an LLM served by
- * Ollama or the Anthropic API, and writes:
+ * Ollama, the Anthropic API, or the Vercel AI Gateway, and writes:
  * - `entity/<TypeName>/<id>.json`: one file per schema-based fake entity
  * - `operation/<operationName>.json`: one file per operation using the `@mock` directive,
  *   mapping the GraphQL path in the document (the empty string for the root) to the mocked value
@@ -47,11 +47,11 @@ suspend fun generate(
   provider: String = "ollama",
   count: Int = 8,
   model: String? = null,
-  baseUrl: String = "http://localhost:11434",
+  baseUrl: String? = null,
   apiKey: String? = null,
 ) {
-  require(provider == "ollama" || provider == "anthropic" || provider == "random") {
-    "Unknown provider: '$provider'. Supported providers: ollama, anthropic, random"
+  require(provider == "ollama" || provider == "anthropic" || provider == "vercel" || provider == "random") {
+    "Unknown provider: '$provider'. Supported providers: ollama, anthropic, vercel, random"
   }
 
   val schemaDocument = schema.toGQLDocument()
@@ -66,12 +66,23 @@ suspend fun generate(
   val existingEntities = loadExistingEntities(entityDir)
 
   val client: DataProvider = when (provider) {
-    "ollama" -> OllamaClient(baseUrl, model ?: defaultOllamaModel(baseUrl))
+    "ollama" -> {
+      val ollamaBaseUrl = baseUrl ?: "http://localhost:11434"
+      OllamaClient(ollamaBaseUrl, model ?: defaultOllamaModel(ollamaBaseUrl))
+    }
+
     "anthropic" -> {
       requireNotNull(apiKey) {
         "provider 'anthropic' requires an API key: pass --api-key or set the ANTHROPIC_API_KEY environment variable"
       }
       AnthropicClient(apiKey, model ?: "claude-haiku-4-5")
+    }
+
+    "vercel" -> {
+      requireNotNull(apiKey) {
+        "provider 'vercel' requires an API key: pass --api-key or set the AI_GATEWAY_API_KEY environment variable"
+      }
+      VercelAiGatewayClient(apiKey, model ?: "anthropic/claude-haiku-4.5", baseUrl ?: "https://ai-gateway.vercel.sh/v1")
     }
 
     "random" -> RandomDataProvider()
