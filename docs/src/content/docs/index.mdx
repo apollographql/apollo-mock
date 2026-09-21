@@ -6,15 +6,87 @@ Apollo Mock generates and serves mock data for your testing or experimentation n
 
 Apollo Mock:
 * uses Large Language Models to generate realistic user data.
-* can update your data incrementally, making your tests reproducible.
-* mocks at the schema and operation level, making it easy to bootstrap a full server and override the behavior for specific operations.
+* only needs a GraphQL schema to generate a working server.
+* stores data as JSON files that are easy to edit.
+* updates data incrementally, making your tests reproducible.
+* can also mock operations for more fine-grained mocking.
 
-Compared to [graphql-faker](https://github.com/APIs-guru/graphql-faker) or other fake data generators, Apollo Mock doesn't need to annotate your schema with directives. Instead, the LLM generates realistic data based on the types, field names and descriptions in your schema..
+Compared to [graphql-faker](https://github.com/APIs-guru/graphql-faker) or other fake data generators, Apollo Mock doesn't need to annotate your schema with directives. Instead, the LLM generates realistic data based on the types, field names and descriptions in your schema.
 
 ### Requirements
 
 Generating data runs fully locally with [Ollama](https://ollama.com/) — no API key needed. Alternatively,
-it can use the [Anthropic API](https://console.anthropic.com/) if you have an API key.
+it can use the [Anthropic API](https://console.anthropic.com/) or the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway)
+if you have an API key.
+
+### Mocking schema types
+
+Given a `Product` type in your schema:
+
+```graphql
+type Product {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  currency: Currency!
+  inStock: Boolean!
+  category: Category!
+  reviews: [Review!]!
+}
+```
+
+Apollo Mock generates realistic examples in `data/entity/Product/$id.json`:
+
+```json5
+{
+  "name": "Wireless Noise-Canceling Headphones",
+  "description": "Premium over-ear headphones with 30-hour battery life and adaptive noise cancellation.",
+  "price": 249.99,
+  "currency": "USD",
+  "inStock": true,
+  "id": "product-1",
+  "category": {
+    "__typename": "Category",
+    "id": "category-1"
+  },
+  "reviews": [
+    // ...
+  ]
+}
+```
+
+### Mocking operations
+
+Apollo Mock can also mock operations. Given a `GetOutOfStockProduct` query in your schema:
+
+```graphql
+query GetOutOfStockProduct @mock(hint: "a single out-of-stock product with a low price") {
+  product(id: "product-1") {
+    name
+    price
+    inStock
+  }
+}
+```
+
+Apollo Mock generates a mock response in `data/operation/GetOutOfStockProduct.json`:
+
+```json5
+{
+    "": {
+        "product": {
+            "name": "Basic Cotton Socks",
+            "price": 2.49,
+            "inStock": false
+        }
+    }
+}
+```
+
+### Serving data
+
+Apollo Mock comes with a built-in server that serves mock data from the `data` directory. 
 
 ### Getting started
 
