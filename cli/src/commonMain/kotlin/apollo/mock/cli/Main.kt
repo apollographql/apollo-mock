@@ -11,10 +11,15 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.clikt.parameters.types.int
 import kotlinx.coroutines.runBlocking
 
 private class ApolloMockCommand : CliktCommand(name = "apollo-mock") {
+  init {
+    versionOption(VERSION)
+  }
+
   override fun help(context: Context): String = "Generates and serves fake data for a GraphQL schema."
 
   override fun run() = Unit
